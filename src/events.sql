@@ -1,13 +1,17 @@
 DROP TABLE IF EXISTS events_active CASCADE;
+DROP TABLE IF EXISTS events_past CASCADE;
+DROP SEQUENCE IF EXISTS events_id;
+
+CREATE SEQUENCE events_id; --active and past table should have unique ids so that union view doesnt have duplicates
+
 CREATE TABLE events_active (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY DEFAULT nextval('events_id'),
     title TEXT NOT NULL,
     event_time TIMESTAMP NOT NULL
 );
 
-DROP TABLE IF EXISTS events_past CASCADE;
 CREATE TABLE events_past (
-    id SERIAL PRIMARY KEY,
+    id INT PRIMARY KEY DEFAULT nextval('events_id'),
     title TEXT NOT NULL,
     event_time TIMESTAMP NOT NULL
 );

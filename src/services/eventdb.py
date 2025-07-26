@@ -17,6 +17,32 @@ class EventService:
             #logging.error("get for " + str(id) + "failed")
             return Event(id=id, tile="failed", date=datetime.now())
 
+    def get_active(self): #TODO: code cleanup, merge duplicates
+        try:
+            with self.conn.cursor() as cur:
+                cur.execute("SELECT id, title, event_time FROM events_active")
+                rows = cur.fetchall()
+                return [Event(id=r[0], title=r[1], date=r[2]) for r in rows]
+        except psycopg2.Error as e:
+            #logging.error("getting actives failed")
+            return []
+
+    def active_to_past(self, event):
+        try:
+            with self.conn.cursor() as cur:
+                # delete from events_active
+                cur.execute("DELETE FROM events_active WHERE id = %s", (event.id,))
+                # insert into events_past
+                cur.execute(
+                    "INSERT INTO events_past (title, event_time) VALUES (%s, %s)",
+                    (event.title, event.date)
+                )
+                self.conn.commit()
+        except psycopg2.Error as e:
+            #logging.error(f"moving event to past failed: {e}")
+            print(e)
+            self.conn.rollback()
+
     def get_all_events(self):
         try:
             with self.conn.cursor() as cur:
