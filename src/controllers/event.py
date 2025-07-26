@@ -2,25 +2,11 @@ from flask import Flask, jsonify, request
 from ..models.event import Event
 import psycopg2
 from ..services.eventdb import EventService
+from ..get_db_connection import get_connection
 from datetime import datetime
-import os
-from dotenv import load_dotenv
 
-load_dotenv()
-dbname = os.getenv("DB_NAME")
-user = os.getenv("DB_USER")
-password = os.getenv("DB_PASSWORD")
-host = os.getenv("DB_HOST")
-port = os.getenv("DB_PORT")
-
-conn = psycopg2.connect(
-    dbname=dbname,
-    user=user,
-    password=password,
-    host=host,
-    port=port
-)
-event_service = EventService(conn)
+connection = get_connection()
+event_service = EventService(connection)
 
 app = Flask(__name__)
 
@@ -54,3 +40,4 @@ def post_event():
 
 if __name__ == "__main__":
     app.run(debug=True)
+    

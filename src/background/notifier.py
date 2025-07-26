@@ -11,7 +11,6 @@ from datetime import datetime, timedelta
 # is the case, they are also moved to the past database
 
 if __name__ == "__main__":
-
     subscribers = ["Jef", "Katy", "Borogrove"] # idea is that we can have multiple instances of notifiers workers
     # with each their list of subscribers
 
