@@ -1,6 +1,6 @@
 import psycopg2
 import os
-from dotenv import load_dotenv
+from .get_db_connection import get_connection
 
 def init_db():
     try:
@@ -19,23 +19,8 @@ def init_db():
 
     # then try to connect with db and setup the tables
     try:
-        # assumes that we have required params in .env file
-        load_dotenv()
-        dbname = os.getenv("DB_NAME")
-        user = os.getenv("DB_USER")
-        password = os.getenv("DB_PASSWORD")
-        host = os.getenv("DB_HOST")
-        port = os.getenv("DB_PORT")
-
-        conn = psycopg2.connect(
-            dbname=dbname,
-            user=user,
-            password=password,
-            host=host,
-            port=port
-        )
-
-        cur = conn.cursor()
+        connection = get_connection()
+        cur = connection.cursor()
 
         # assumes one sql setup file with instruction seperated by ;
         for statement in sql.split(";"):
@@ -43,7 +28,7 @@ def init_db():
             if stmt:
                 cur.execute(stmt + ";")
 
-        conn.commit()
+        connection.commit()
         print("SQL setup done")
 
     except psycopg2.Error as e:
@@ -53,4 +38,4 @@ def init_db():
     # close connections
     finally:
         cur.close()
-        conn.close()
+        connection.close()

@@ -57,7 +57,6 @@ def test_post_get():
         return False
     print("GET /events is success")
 
-    # GET /events/{id}
     event_id_path = f"/events/{event['id']}"
     response = send_request("GET", event_id_path)
     if response.status != 200:
