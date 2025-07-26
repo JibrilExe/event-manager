@@ -4,71 +4,72 @@ import json
 from datetime import datetime
 from email.utils import parsedate_to_datetime
 
+def make_connection():
+    return http.client.HTTPConnection("127.0.0.1", 5000)
+
+def send_request(method, path, body=None, headers=None):
+    conn = make_connection()
+    try:
+        conn.request(method, path, body, headers or {}) #headers cant be none, it will try to iterate it
+        return conn.getresponse()
+    finally:
+        conn.close()
+
+def parse_date(raw_date):
+    return parsedate_to_datetime(raw_date).replace(tzinfo=None)
+
+def assert_event_match(event, expected_title, expected_date_iso):
+    expected_date = datetime.fromisoformat(expected_date_iso)
+    actual_date = parse_date(event["date"])
+    if event["title"] != expected_title or actual_date != expected_date:
+        print("Mismatch:")
+        print("Title: expected =", expected_title, "actual =", event["title"])
+        print("Date: expected =", expected_date, "actual =", actual_date)
+        return False
+    return True
+
 def test_post_get():
-    init_db() #gives us a fresh db
+    init_db()
     print("Start post followed by get test")
 
     title = "Testing event"
     date = "2025-07-26T11:58:00"
-
-    connection = http.client.HTTPConnection("127.0.0.1", 5000)
     headers = {"Content-Type": "application/json"}
-    body = json.dumps({
-        "title": title,
-        "date": date
-    })
-    try: # test the post endpoint
-        connection.request("POST", "/events", body, headers)
-        response = connection.getresponse()
-        print("Status:", response.status)
-        if response.status == 201:
-            print("Test post is succes")
-        else:
-            print("Test post failed, unexpected status:", response.status)
-            return False
-    except Exception as e:
-        print("Post request failed: ", e)
-        return False
-    
-    try:
-        connection.request("GET", "/events")
-        response = connection.getresponse()
-        if response.status != 200:
-            print("Get /events return wrong status: ", response.status)
-        event = json.loads(response.read().decode("utf-8"))[0]
-        server_date = parsedate_to_datetime(event["date"]).replace(tzinfo=None)
-        test_date = datetime.fromisoformat(date)
-        if event["title"] != title or server_date != test_date:
-            print("Get returned wrong event: ", event)
-            print(event["title"], title)
-            print(server_date, test_date)
-            return False
-        print("Get /events is succes")
-    except Exception as e:
-        print("Get request failed: ", e)
-        return False
-    
-    id = event["id"]
-    try:
-        event_id_path = f"/events/{id}"
-        connection.request("GET", event_id_path)
-        response = connection.getresponse()
-        if response.status != 200:
-            print(f"Get {event_id_path} failed, wrong status code: ", response.status)
-        event = json.loads(response.read().decode("utf-8"))
-        server_date = parsedate_to_datetime(event["date"]).replace(tzinfo=None)
-        test_date = datetime.fromisoformat(date)
-        if event["title"] != title or server_date != test_date:
-            print("Get returned wrong event: ", event)
-            print(event["title"], title)
-            print(server_date, test_date)
-            return False
-        print(f"Get {event_id_path} is succes")
-    except Exception as e:
-        print("Get request failed: ", e)
-        return False
+    body = json.dumps({"title": title, "date": date})
 
-    print("Succesfully finished post followed by get test")
+    response = send_request("POST", "/events", body=body, headers=headers)
+    print("POST /events status:", response.status)
+    if response.status != 201:
+        print("POST failed")
+        return False
+    print("Test post is success")
+
+    response = send_request("GET", "/events")
+    if response.status != 200:
+        print("GET /events failed:", response.status)
+        return False
+    event_list = json.loads(response.read().decode("utf-8"))
+    if not event_list:
+        print("No events returned")
+        return False
+    event = event_list[0]
+    if not assert_event_match(event, title, date):
+        return False
+    print("GET /events is success")
+
+    # GET /events/{id}
+    event_id_path = f"/events/{event['id']}"
+    response = send_request("GET", event_id_path)
+    if response.status != 200:
+        print(f"GET {event_id_path} failed:", response.status)
+        return False
+    event = json.loads(response.read().decode("utf-8"))
+    if not assert_event_match(event, title, date):
+        return False
+    print(f"GET {event_id_path} is success")
+
+    print("Successfully finished post followed by get test")
+    return True
 
 if __name__ == "__main__":
     test_post_get()
