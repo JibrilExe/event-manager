@@ -1,11 +1,13 @@
 import psycopg2
+import os
+from dotenv import load_dotenv
 
 # first try read setup sql
 try:
     with open("events.sql", "r") as file:
         sql = file.read()
 except FileNotFoundError:
-    print("Setup file not found")
+    print("Setup file not found, should be named events.sql")
     exit(1)
 except IOError as e:
     print(e)
@@ -13,12 +15,20 @@ except IOError as e:
 
 # then try to connect with db and setup the tables
 try:
-    conn = psycopg2.connect( #assumes database name and user and password and address to psql server, need to make setting file or..
-        dbname="eventmanager",
-        user="postgres",
-        password="Ce+Me2000",
-        host="localhost",
-        port="5432"
+    # assumes that we have required params in .env file
+    load_dotenv()
+    dbname = os.getenv("DB_NAME")
+    user = os.getenv("DB_USER")
+    password = os.getenv("DB_PASSWORD")
+    host = os.getenv("DB_HOST")
+    port = os.getenv("DB_PORT")
+
+    conn = psycopg2.connect(
+        dbname=dbname,
+        user=user,
+        password=password,
+        host=host,
+        port=port
     )
 
     cur = conn.cursor()

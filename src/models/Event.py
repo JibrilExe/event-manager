@@ -4,5 +4,6 @@ from datetime import datetime
 @dataclass
 class Event:
     """Class to keep track of events"""
-    name:str
+    title:str
     date:datetime
+    id:int=-1
