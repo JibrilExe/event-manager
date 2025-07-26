@@ -1,15 +1,15 @@
-DROP TABLE IF EXISTS events_active;
+DROP TABLE IF EXISTS events_active CASCADE;
 CREATE TABLE events_active (
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
     event_time TIMESTAMP NOT NULL
 );
 
-DROP TABLE IF EXISTS events_past;
+DROP TABLE IF EXISTS events_past CASCADE;
 CREATE TABLE events_past (
     id SERIAL PRIMARY KEY,
     title TEXT NOT NULL,
-    event_time TIMESTAMP NOT NULL,
+    event_time TIMESTAMP NOT NULL
 );
 
 DROP VIEW IF EXISTS events_all;
