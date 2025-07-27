@@ -1,12 +1,10 @@
 from flask import Flask, jsonify, request
 from ..models.event import Event
-import psycopg2
 from ..services.eventdb import EventService
-from ..get_db_connection import get_connection
 from datetime import datetime
+import atexit
 
-connection = get_connection()
-event_service = EventService(connection)
+event_service = EventService()
 
 app = Flask(__name__)
 
@@ -39,5 +37,5 @@ def post_event():
     return jsonify({"message": "Event added"}), 201
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
     

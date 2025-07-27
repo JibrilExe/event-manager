@@ -1,9 +1,5 @@
-import os
 from time import sleep
-from dotenv import load_dotenv
-import psycopg2
 from ..controllers.event import EventService
-from ..get_db_connection import get_connection
 from datetime import datetime, timedelta
 
 # This background worker will query the active events table every 10 seconds
@@ -14,8 +10,7 @@ if __name__ == "__main__":
     subscribers = ["Jef", "Katy", "Borogrove"] # idea is that we can have multiple instances of notifiers workers
     # with each their list of subscribers
 
-    connection = get_connection()
-    event_service = EventService(connection)
+    event_service = EventService()
     delta_fivemin = timedelta(minutes=5)
 
     while True:
