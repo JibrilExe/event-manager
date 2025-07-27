@@ -42,7 +42,7 @@ docker-compose up
 Simple test setup didn't use a framework
 
 ```
-python -m tests.test_api
+python -m tests.test_all
 ```
 
 ## Example usage of API:
