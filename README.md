@@ -1,5 +1,6 @@
 # Event manager
 Simple concept for an API that lets you register upcoming events, and will notify you when it is about to take place.
+[API docs] https://docs.google.com/document/d/1ohPlJFXRNphhnBTpZDh2oHMNYyy1fOdv8vmoBoaKx6w/edit?usp=sharing
 
 ## How to run it
 
