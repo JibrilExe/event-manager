@@ -15,7 +15,7 @@ DB_HOST=localhost
 DB_PORT=5430
 ```
 
-Built with python 3.15 but also works on 3.12 and possibly even older.
+Built with python 3.13 but also works on 3.12 and possibly even older.
 ```
 pip install -r reqs.txt
 ```
