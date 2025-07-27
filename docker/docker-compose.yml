@@ -1,0 +1,43 @@
+services:
+  db:
+    image: postgres:15
+    restart: always
+    environment:
+      POSTGRES_USER: appuser #hardcoded for now
+      POSTGRES_PASSWORD: secret
+      POSTGRES_DB: appdb
+    volumes:
+      - db-data:/var/lib/postgresql/data #volume for persistence over lifecycles
+    ports:
+      - "5430:5432"
+
+  app:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.app
+    depends_on:
+      - db
+    ports:
+      - "5000:5000"
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: appdb
+      DB_USER: appuser
+      DB_PASSWORD: secret
+
+  notifier:
+    build:
+      context: ..
+      dockerfile: docker/Dockerfile.notifier
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: appdb
+      DB_USER: appuser
+      DB_PASSWORD: secret
+
+volumes:
+  db-data:

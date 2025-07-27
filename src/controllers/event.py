@@ -1,12 +1,9 @@
 from flask import Flask, jsonify, request
 from ..models.event import Event
-import psycopg2
 from ..services.eventdb import EventService
-from ..get_db_connection import get_connection
-from datetime import datetime
+from datetime import datetime, timezone
 
-connection = get_connection()
-event_service = EventService(connection)
+event_service = EventService()
 
 app = Flask(__name__)
 
@@ -34,10 +31,13 @@ def get_events():
 @app.route("/events", methods=["POST"])
 def post_event():
     data = request.get_json()
-    event = Event(title=data["title"], date=datetime.fromisoformat(data["date"]))
+    naive_dt = datetime.fromisoformat(data["date"]) #always convert to utc to be sure of internal timezone
+    aware_dt = naive_dt.replace(tzinfo=timezone.utc) if naive_dt.tzinfo is None else naive_dt.astimezone(timezone.utc)
+
+    event = Event(title=data["title"], date=aware_dt)
     event_service.post_event(event)
     return jsonify({"message": "Event added"}), 201
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(host="0.0.0.0", port=5000, debug=True)
     
