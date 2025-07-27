@@ -17,5 +17,5 @@ def get_connection():
         host=host,
         port=port
     )
-
+    
     return connection

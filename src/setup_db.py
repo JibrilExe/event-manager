@@ -39,3 +39,6 @@ def init_db():
     finally:
         cur.close()
         connection.close()
+
+if __name__ == "__main__":
+    init_db()
