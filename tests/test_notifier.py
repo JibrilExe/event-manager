@@ -11,9 +11,9 @@ def make_connection():
 def post_close_to_five_minutes_test():
     init_db()
     utc_now = datetime.now(timezone.utc)
-    event_time = utc_now + timedelta(minutes=6)
+    event_time = utc_now + timedelta(minutes=5,seconds=5)
     event_data = {
-        "title": "Test Event 8 min ahead",
+        "title": "Test Event 5 min and 5 sec ahead",
         "date": event_time.isoformat()
     }
 
@@ -36,8 +36,8 @@ def post_close_to_five_minutes_test():
         print("Title wrong")
         return False
 
-    print("Sleeping 2 minutes")
-    sleep(120)
+    print("Sleeping 10 seconds") # assumes normal/fast latency on the testing system
+    sleep(10) #note: not a great test, i know, should fix logging setup and check actual notifications
     events = event_service.get_active()
     if len(events) > 0:
         print("Notifier failed, did not move event from active to past")
