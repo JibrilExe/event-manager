@@ -16,7 +16,6 @@ if __name__ == "__main__":
         now = datetime.now(timezone.utc)  # always UTC for internal system
         five_minutes_further = now + delta_fivemin
         active_events = event_service.get_active()
-        print(active_events)
         for event in active_events:
             if event.date <= five_minutes_further:
                 print(f"notify subscribers {event.title} {event.date} {event.id}")
