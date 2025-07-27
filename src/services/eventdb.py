@@ -1,7 +1,7 @@
 # service for db queries
 import psycopg2
 from ..models.event import Event
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from ..get_db_connection import get_connection
 
 class EventService:
@@ -66,7 +66,7 @@ class EventService:
             conn.close()
 
     def post_event(self, event: Event):
-        now = datetime.now()
+        now = datetime.now(timezone.utc)
         five_minutes_further = now + timedelta(minutes=5)
         try:
             conn = get_connection()

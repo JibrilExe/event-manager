@@ -1,8 +1,7 @@
 from flask import Flask, jsonify, request
 from ..models.event import Event
 from ..services.eventdb import EventService
-from datetime import datetime
-import atexit
+from datetime import datetime, timezone
 
 event_service = EventService()
 
@@ -32,7 +31,10 @@ def get_events():
 @app.route("/events", methods=["POST"])
 def post_event():
     data = request.get_json()
-    event = Event(title=data["title"], date=datetime.fromisoformat(data["date"]))
+    naive_dt = datetime.fromisoformat(data["date"]) #always convert to utc to be sure of internal timezone
+    aware_dt = naive_dt.replace(tzinfo=timezone.utc) if naive_dt.tzinfo is None else naive_dt.astimezone(timezone.utc)
+
+    event = Event(title=data["title"], date=aware_dt)
     event_service.post_event(event)
     return jsonify({"message": "Event added"}), 201
 

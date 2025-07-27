@@ -7,13 +7,13 @@ CREATE SEQUENCE events_id; --active and past table should have unique ids so tha
 CREATE TABLE events_active (
     id INT PRIMARY KEY DEFAULT nextval('events_id'),
     title TEXT NOT NULL,
-    event_time TIMESTAMP NOT NULL
+    event_time TIMESTAMPTZ NOT NULL
 );
 
 CREATE TABLE events_past (
     id INT PRIMARY KEY DEFAULT nextval('events_id'),
     title TEXT NOT NULL,
-    event_time TIMESTAMP NOT NULL
+    event_time TIMESTAMPTZ NOT NULL
 );
 
 DROP VIEW IF EXISTS events_all;
