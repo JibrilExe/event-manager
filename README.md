@@ -40,10 +40,14 @@ Navigate to the docker folder.
 docker-compose up
 
 ## Testing
-Simple test setup didn't use a framework
+Setup with pytest
 
 ```
-python -m tests.test_all
+pip install -r reqs_test.txt
+```
+
+```
+pytest
 ```
 
 ## Example usage of API:
