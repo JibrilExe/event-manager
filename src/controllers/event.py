@@ -1,15 +1,13 @@
 from flask import Flask, jsonify, request
 from ..models.event import Event
-from ..services.eventdb import EventService
+from ..services.eventdb import get_event_by_id, get_all_events, insert_event
 from datetime import datetime, timezone
-
-event_service = EventService()
 
 app = Flask(__name__)
 
 @app.route("/events/<int:id>", methods=["GET"])
 def get_event(id):
-    event, statuscode = event_service.get_event(id)
+    event, statuscode = get_event_by_id(id)
     json = {}
     if event is None:
         if statuscode == 404:
@@ -27,7 +25,7 @@ def get_event(id):
 
 @app.route("/events", methods=["GET"])
 def get_events():
-    events, statuscode = event_service.get_all_events()
+    events, statuscode = get_all_events()
     json = [
         {
             "id": event.id,
@@ -45,7 +43,7 @@ def post_event():
     aware_dt = naive_dt.replace(tzinfo=timezone.utc) if naive_dt.tzinfo is None else naive_dt.astimezone(timezone.utc)
 
     event = Event(title=data["title"], date=aware_dt)
-    statuscode = event_service.post_event(event)
+    statuscode = insert_event(event)
     if statuscode == 201:
         return jsonify({"message": "Event added"}), statuscode
     else:
