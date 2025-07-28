@@ -1,17 +1,13 @@
-from src.setup_db import init_db
-from src.services.eventdb import EventService 
-import http.client
 import json
-from datetime import datetime, timezone, timedelta
+from datetime import datetime, timedelta, timezone
 from time import sleep
+from src.services.eventdb import get_active
+from tests.conf_test import send_request
 
-def make_connection():
-    return http.client.HTTPConnection("127.0.0.1", 5000)
-
-def post_close_to_five_minutes_test():
-    init_db()
+def test_notifier_moves_event_to_past():
     utc_now = datetime.now(timezone.utc)
-    event_time = utc_now + timedelta(minutes=5,seconds=5)
+    event_time = utc_now + timedelta(minutes=5, seconds=5)
+
     event_data = {
         "title": "Test Event 5 min and 5 sec ahead",
         "date": event_time.isoformat()
@@ -19,31 +15,19 @@ def post_close_to_five_minutes_test():
 
     body = json.dumps(event_data)
     headers = {"Content-Type": "application/json"}
-    conn = make_connection()
-    try:
-        conn.request("POST", "/events", body=body, headers=headers)
-        response = conn.getresponse()
-        if response.status != 201:
-            return False
-        print("Event successfully posted.")
-    finally:
-        conn.close()
-    
-    event_service = EventService()
-    event = event_service.get_active()[0]
 
-    if event.title != event_data["title"]:
-        print("Title wrong")
-        return False
+    response = send_request("POST", "/events", body=body, headers=headers)
+    assert response.status == 201, "Failed to POST event"
 
-    print("Sleeping 10 seconds") # assumes normal/fast latency on the testing system
-    sleep(10) #note: not a great test, i know, should fix logging setup and check actual notifications
-    events = event_service.get_active()
-    if len(events) > 0:
-        print("Notifier failed, did not move event from active to past")
-        return False
+    active_events = get_active()[0]
+    assert active_events, "No active events found after insert"
+
+    event = active_events[0]
+    assert event.title == event_data["title"], "Event title mismatch"
+
+    sleep(10)
+
+    active_events = get_active()[0]
+    assert len(active_events) == 0, f"Event still active: {active_events}"
 
     print("Notifier succeeded")
-    
-if __name__ == "__main__":
-    post_close_to_five_minutes_test()

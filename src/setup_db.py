@@ -3,6 +3,10 @@ import os
 from .get_db_connection import get_connection
 
 def init_db():
+    """
+    Tries to run events.sql on the database,
+    which should setup the needed tables and view
+    """
     try:
         # get the absolute path to avoid relative path issue when using init_db from test folder
         base_dir = os.path.dirname(os.path.abspath(__file__))
