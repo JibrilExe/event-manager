@@ -7,6 +7,7 @@ app = Flask(__name__)
 
 @app.route("/events/<int:id>", methods=["GET"])
 def get_event(id):
+    """Get event by id."""
     event, statuscode = get_event_by_id(id)
     json = {}
     if event is None:
@@ -25,6 +26,7 @@ def get_event(id):
 
 @app.route("/events", methods=["GET"])
 def get_events():
+    """Get all events."""
     events, statuscode = get_all_events()
     json = [
         {
@@ -38,8 +40,9 @@ def get_events():
 
 @app.route("/events", methods=["POST"])
 def post_event():
+    """Create a new event. Will always convert date to UTC."""
     data = request.get_json()
-    naive_dt = datetime.fromisoformat(data["date"]) #always convert to utc to be sure of internal timezone
+    naive_dt = datetime.fromisoformat(data["date"])
     aware_dt = naive_dt.replace(tzinfo=timezone.utc) if naive_dt.tzinfo is None else naive_dt.astimezone(timezone.utc)
 
     event = Event(title=data["title"], date=aware_dt)
